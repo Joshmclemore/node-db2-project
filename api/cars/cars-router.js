@@ -1,7 +1,7 @@
 // DO YOUR MAGIC
 const router = require('express').Router()
 const Cars = require('./cars-model')
-const { checkCarId, checkCarPayload, checkVinNumberUnique, chevali } = require('./cars-middleware')
+const { checkCarId, checkCarPayload, checkVinNumberUnique, checkVinNumberValid } = require('./cars-middleware')
 
 router.get('/', async (req, res, next) => {
     try {
@@ -16,29 +16,12 @@ router.get('/:id', checkCarId, (req, res, next) => {
     res.json(req.car)
 })
   
-router.post('/', checkCarPayload, (req, res, next) => {
+router.post('/', checkCarPayload, checkVinNumberValid, checkVinNumberUnique, async (req, res, next) => {
     try {
-        res.json('post new car route')
+        const newCar = await Cars.create(req.body)
+        res.status(201).json(newCar)
     } catch (err) {
         next(err)
-    }
-})
-  
-router.put('/:id', (req, res, next) => {
-    // const updated = await Account.updateById(req.params.id, req.body)
-    try {
-      res.json('put route')
-    } catch (err) {
-      next(err)
-    }
-  });
-  
-router.delete('/:id', (req, res, next) => {
-    try {
-    //   await Account.deleteById(req.params.id)
-      res.json('delete route')
-    } catch (err) {
-      next(err)
     }
 })
   
